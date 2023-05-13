@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private int id = 1;
+    private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -26,9 +28,11 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.info("Дата релиза — не раньше 28 декабря 1895 года");
-            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
+        if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
+            log.info("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
+                    + " " + CINEMA_BIRTHDAY.getYear());
+            throw new ValidationException("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
+                    + " " + CINEMA_BIRTHDAY.getYear());
         } else {
             film.setId(generateId());
             films.put(film.getId(), film);
@@ -40,11 +44,16 @@ public class FilmController {
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
-            Film oldFilm = films.get(film.getId());
-            film.setId(oldFilm.getId());
-            films.put(film.getId(), film);
-            log.info("Обновлен фильм: {}", film);
-            return film;
+            if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
+                log.info("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
+                        + " " + CINEMA_BIRTHDAY.getYear());
+                throw new ValidationException("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
+                        + " " + CINEMA_BIRTHDAY.getYear());
+            } else {
+                films.put(film.getId(), film);
+                log.info("Обновлен фильм: {}", film);
+                return film;
+            }
         } else {
             log.info("Фильм с id {} не найден", film.getId());
             throw new ValidationException("Фильма с id " + film.getId() + " не существует.");

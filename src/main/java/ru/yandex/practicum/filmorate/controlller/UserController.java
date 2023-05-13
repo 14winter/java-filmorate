@@ -25,10 +25,9 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
-        } else if (user.getName().isEmpty()) {
-            user.setName(user.getLogin());
+            log.info("Имя для отображения пустое — в таком случае будет использован логин: {}", user.getLogin());
         }
         user.setId(generateId());
         users.put(user.getId(), user);
@@ -39,8 +38,10 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         if (users.containsKey(user.getId())) {
-            User oldUser = users.get(user.getId());
-            user.setId(oldUser.getId());
+            if (user.getName() == null || user.getName().isEmpty()) {
+                user.setName(user.getLogin());
+                log.info("Имя для отображения пустое — в таком случае будет использован логин: {}", user.getLogin());
+            }
             users.put(user.getId(), user);
             log.info("Обновлен пользователь: {}", user);
             return user;
