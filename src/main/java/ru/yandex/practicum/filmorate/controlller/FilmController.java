@@ -54,8 +54,7 @@ public class FilmController {
 
     private void filmValidation(Film film) {
         if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            log.info("Дата релиза {} должна быть не раньше {} {} {}", film.getReleaseDate()
-                    , CINEMA_BIRTHDAY.getDayOfMonth(), CINEMA_BIRTHDAY.getMonth(), CINEMA_BIRTHDAY.getYear());
+            log.info("Дата релиза {} должна быть не раньше {} {} {}", film.getReleaseDate(), CINEMA_BIRTHDAY.getDayOfMonth(), CINEMA_BIRTHDAY.getMonth(), CINEMA_BIRTHDAY.getYear());
             throw new ValidationException("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
                     + " " + CINEMA_BIRTHDAY.getYear());
         }
