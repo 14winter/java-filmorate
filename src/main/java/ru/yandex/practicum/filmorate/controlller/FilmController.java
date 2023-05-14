@@ -28,32 +28,20 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            log.info("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
-                    + " " + CINEMA_BIRTHDAY.getYear());
-            throw new ValidationException("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
-                    + " " + CINEMA_BIRTHDAY.getYear());
-        } else {
-            film.setId(generateId());
-            films.put(film.getId(), film);
-            log.info("Добавлен фильм: {}", film);
-            return film;
-        }
+        filmValidation(film);
+        film.setId(generateId());
+        films.put(film.getId(), film);
+        log.info("Добавлен фильм: {}", film);
+        return film;
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
-            if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-                log.info("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
-                        + " " + CINEMA_BIRTHDAY.getYear());
-                throw new ValidationException("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
-                        + " " + CINEMA_BIRTHDAY.getYear());
-            } else {
-                films.put(film.getId(), film);
-                log.info("Обновлен фильм: {}", film);
-                return film;
-            }
+            filmValidation(film);
+            films.put(film.getId(), film);
+            log.info("Обновлен фильм: {}", film);
+            return film;
         } else {
             log.info("Фильм с id {} не найден", film.getId());
             throw new ValidationException("Фильма с id " + film.getId() + " не существует.");
@@ -62,5 +50,14 @@ public class FilmController {
 
     private int generateId() {
         return id++;
+    }
+
+    private void filmValidation(Film film) {
+        if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
+            log.info("Дата релиза {} должна быть не раньше {} {} {}", film.getReleaseDate()
+                    , CINEMA_BIRTHDAY.getDayOfMonth(), CINEMA_BIRTHDAY.getMonth(), CINEMA_BIRTHDAY.getYear());
+            throw new ValidationException("Дата релиза — не раньше " + CINEMA_BIRTHDAY.getDayOfMonth() + " " + CINEMA_BIRTHDAY.getMonth()
+                    + " " + CINEMA_BIRTHDAY.getYear());
+        }
     }
 }

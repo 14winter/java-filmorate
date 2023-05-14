@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controlller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -25,10 +26,7 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-            log.info("Имя для отображения пустое — в таком случае будет использован логин: {}", user.getLogin());
-        }
+        userValidation(user);
         user.setId(generateId());
         users.put(user.getId(), user);
         log.info("Добавлен пользователь: {}", user);
@@ -38,10 +36,7 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         if (users.containsKey(user.getId())) {
-            if (user.getName() == null || user.getName().isEmpty()) {
-                user.setName(user.getLogin());
-                log.info("Имя для отображения пустое — в таком случае будет использован логин: {}", user.getLogin());
-            }
+            userValidation(user);
             users.put(user.getId(), user);
             log.info("Обновлен пользователь: {}", user);
             return user;
@@ -53,5 +48,12 @@ public class UserController {
 
     private int generateId() {
         return id++;
+    }
+
+    private void userValidation(User user) {
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+            log.info("Имя для отображения пустое — в таком случае будет использован логин: {}", user.getLogin());
+        }
     }
 }
