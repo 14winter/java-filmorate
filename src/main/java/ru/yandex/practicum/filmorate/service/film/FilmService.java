@@ -77,7 +77,7 @@ public class FilmService {
         return filmStorage.update(film);
     }
 
-    public Film getFilm(Long id){
+    public Film getFilm(Long id) {
         return filmStorage.getFilm(id);
     }
 }

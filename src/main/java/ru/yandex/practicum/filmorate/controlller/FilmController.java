@@ -16,6 +16,7 @@ import java.util.Optional;
 @RequestMapping("/films")
 public class FilmController {
     private final FilmService filmService;
+
     @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
@@ -39,7 +40,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getFilm(@PathVariable Long id){
+    public Film getFilm(@PathVariable Long id) {
         log.info("Получен Get запрос к /films/{id}: id{}", id);
         return filmService.getFilm(id);
     }
