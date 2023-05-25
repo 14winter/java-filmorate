@@ -24,7 +24,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        userValidation(user);
         user.setId(generateId());
         users.put(user.getId(), user);
         log.info("Добавлен пользователь: {}", user);
@@ -34,7 +33,6 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         if (users.containsKey(user.getId())) {
-            userValidation(user);
             users.put(user.getId(), user);
             log.info("Обновлен пользователь: {}", user);
             return user;
@@ -46,21 +44,19 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUser(Long id) {
-        if (users.get(id) == null) {
+        if (id <= 0) {
+            log.info("id {} должен быть больше ноля", id);
+            throw new UserNotFoundException("id должен быть больше ноля");
+        }
+        User user = users.get(id);
+        if (user == null) {
             log.info("Пользователь с id {} не найден", id);
             throw new UserNotFoundException("Пользователя с id " + id + " не существует.");
         }
-        return users.get(id);
+        return user;
     }
 
     private Long generateId() {
         return id++;
-    }
-
-    private void userValidation(User user) {
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-            log.info("Имя для отображения пустое — в таком случае будет использован логин: {}", user.getLogin());
-        }
     }
 }
