@@ -38,18 +38,6 @@ public class FilmService {
         film.getLikes().remove(userId);
         log.info("Пользователь {} удалил Лайк с фильма {}", userStorage.getUser(userId).getName(), film.getName());
     }
-/*
-    private void filmValidation(Long filmId, Long userId) {
-        if (filmId <= 0 || userId <= 0) {
-            throw new UserNotFoundException("id должен быть больше ноля");
-        }
-        if (filmStorage.getFilm(filmId) == null) {
-            throw new FilmNotFoundException("Фильма с id " + filmId + " не существует.");
-        }
-        if (userStorage.getUser(userId) == null) {
-            throw new UserNotFoundException("Пользователя с id " + userId + " не существует.");
-        }
-    }*/
 
     public List<Film> getPopularFilms(long size) {
         log.info("Получить список популярных фильмов: {}", size);

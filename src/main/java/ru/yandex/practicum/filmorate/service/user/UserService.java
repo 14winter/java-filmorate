@@ -39,17 +39,6 @@ public class UserService {
     public List<User> findCommonFriends(Long userId, Long friendId) {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
-/*
-        List<Long> friendsId = user.getFriends().stream()
-                .filter(x -> friend.getFriends().contains(x))
-                .collect(Collectors.toList());
-
-        List<User> friends = new ArrayList<>();
-        for (Long id : friendsId) {
-            User commonFriend = userStorage.getUser(id);
-            friends.add(commonFriend);
-        }*/
-
         List<User> friends = user.getFriends().stream()
                 .filter(x -> friend.getFriends().contains(x))
                 .map(userStorage::getUser)
@@ -68,17 +57,6 @@ public class UserService {
         log.info("Найти друзей пользователя: {}", user.getName());
         return friends;
     }
-/*
-    public List<User> findFriends2(Long userId) {
-        Set<Long> friendsId = userStorage.getUser(userId).getFriends();
-        List<User> friends = new ArrayList<>();
-        for (Long id : friendsId) {
-            User user = userStorage.getUser(id);
-            friends.add(user);
-        }
-        log.info("Найти друзей пользователя: {}", userStorage.getUser(userId).getName());
-        return friends;
-    }*/
 
     public Collection<User> findAll() {
         return userStorage.findAll();
