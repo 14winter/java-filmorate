@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 @Slf4j
 public class FriendDbStorage implements FriendStorage {
-
+    
     private final JdbcTemplate jdbcTemplate;
 
     public FriendDbStorage(JdbcTemplate jdbcTemplate) {
