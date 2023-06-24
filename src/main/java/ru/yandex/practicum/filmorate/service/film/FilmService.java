@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -20,7 +21,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserService userService;
+    private final UserStorage userStorage;
     private final LikeStorage likeStorage;
     private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
 
@@ -57,18 +58,24 @@ public class FilmService {
 
     public void addLike(Long filmId, Long userId) {
         Film film = getFilm(filmId);
-        User user = userService.getUser(userId);
+        User user = userStorage.getUser(userId)
+                .orElseThrow(() -> {
+                    log.info("Пользователь с id {} не найден", userId);
+                    return new UserNotFoundException(String.format("Пользователя с id " + userId + " не существует."));
+                });
         likeStorage.addLike(filmId, userId);
         log.info("Пользователь {} поставил Лайк фильму {}", user.getName(), film.getName());
-
     }
 
     public void deleteLike(Long filmId, Long userId) {
         Film film = getFilm(filmId);
-        User user = userService.getUser(userId);
+        User user = userStorage.getUser(userId)
+                .orElseThrow(() -> {
+                    log.info("Пользователь с id {} не найден", userId);
+                    return new UserNotFoundException(String.format("Пользователя с id " + userId + " не существует."));
+                });
         likeStorage.deleteLike(filmId, userId);
         log.info("Пользователь {} удалил Лайк с фильма {}", user.getName(), film.getName());
-
     }
 
     private void filmValidation(Film film) {

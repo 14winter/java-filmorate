@@ -40,4 +40,13 @@ public class FriendDbStorage implements FriendStorage {
 
         return jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, userId);
     }
+
+    @Override
+    public List<User> findCommonFriends(Long userId, Long friendId) {
+        String sqlQuery = "SELECT u.* FROM users u " +
+                "JOIN friends f1 ON u.user_id = f1.friend_id AND f1.user_id = ? " +
+                "JOIN friends f2 ON u.user_id = f2.friend_id AND f2.user_id = ?";
+
+        return jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, userId, friendId);
+    }
 }

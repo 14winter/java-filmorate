@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,9 +36,7 @@ public class UserService {
         User user = getUser(userId);
         User friend = getUser(friendId);
         log.info("Найти общих друзей: {} и {}", user.getName(), friend.getName());
-        return findFriends(userId).stream()
-                .filter(x -> findFriends(friendId).contains(x))
-                .collect(Collectors.toList());
+        return friendStorage.findCommonFriends(userId, friendId);
     }
 
     public Collection<User> findFriends(Long userId) {

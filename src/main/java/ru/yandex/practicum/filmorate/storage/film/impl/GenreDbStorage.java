@@ -8,10 +8,7 @@ import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,19 +46,41 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public LinkedHashSet<Genre> getFilmGenres(Long id) {
+    public List<Genre> getFilmGenresById(Long id) {
         String sqlQuery = "SELECT g.genre_id, g.name " +
                 "FROM movie_genres mg JOIN genres g " +
                 "ON mg.genre_id = g.genre_id " +
                 "WHERE mg.film_id = ?";
-        LinkedHashSet<Genre> filmGenres = new LinkedHashSet<>();
+        List<Genre> filmGenres = new ArrayList<>();
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
         while (genreRows.next()) {
             filmGenres.add(makeGenre(genreRows));
         }
         return filmGenres.stream()
                 .sorted(Comparator.comparing(Genre::getId))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toList());
+    }
+
+    public Map<Long, Set<Genre>> getFilmGenres(Collection<Long> filmIds) {
+        String sqlQuery = "SELECT mg.film_id, g.genre_id, g.name " +
+                "FROM movie_genres mg " +
+                "JOIN genres g ON mg.genre_id = g.genre_id " +
+                "WHERE mg.film_id IN (" + String.join(",", Collections.nCopies(filmIds.size(), "?")) + ")";
+
+        Map<Long, Set<Genre>> filmGenresMap = new HashMap<>();
+        jdbcTemplate.query(sqlQuery, preparedStatement -> {
+            int i = 1;
+            for (Long filmId : filmIds) {
+                preparedStatement.setLong(i++, filmId);
+            }
+        }, resultSet -> {
+            Long filmId = resultSet.getLong("film_id");
+            Genre genre = new Genre(resultSet.getInt("genre_id"), resultSet.getString("name"));
+            Set<Genre> genres = filmGenresMap.computeIfAbsent(filmId, k -> new LinkedHashSet<>());
+            genres.add(genre);
+        });
+
+        return filmGenresMap;
     }
 
     protected static Genre makeGenre(SqlRowSet genreRow) {
