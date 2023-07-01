@@ -1,61 +1,48 @@
 package ru.yandex.practicum.filmorate.service.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-
-    @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private final FriendStorage friendStorage;
 
     public void addFriend(Long userId, Long friendId) {
-        User user = userStorage.getUser(userId);
-        User friend = userStorage.getUser(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        User user = getUser(userId);
+        User friend = getUser(friendId);
+        friendStorage.addFriend(userId, friendId);
         log.info("Добавлены в друзья: {} и {}", user.getName(), friend.getName());
     }
 
     public void deleteFriend(Long userId, Long friendId) {
-        User user = userStorage.getUser(userId);
-        User friend = userStorage.getUser(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        User user = getUser(userId);
+        User friend = getUser(friendId);
+        friendStorage.deleteFriend(userId, friendId);
         log.info("Удалены из друзей: {} и {}", user.getName(), friend.getName());
     }
 
     public List<User> findCommonFriends(Long userId, Long friendId) {
-        User user = userStorage.getUser(userId);
-        User friend = userStorage.getUser(friendId);
-        List<User> friends = user.getFriends().stream()
-                .filter(x -> friend.getFriends().contains(x))
-                .map(userStorage::getUser)
-                .collect(Collectors.toList());
-
+        User user = getUser(userId);
+        User friend = getUser(friendId);
         log.info("Найти общих друзей: {} и {}", user.getName(), friend.getName());
-        return friends;
+        return friendStorage.findCommonFriends(userId, friendId);
     }
 
-    public List<User> findFriends(Long userId) {
-        User user = userStorage.getUser(userId);
-        List<User> friends = user.getFriends().stream()
-                .map(userStorage::getUser)
-                .collect(Collectors.toList());
-
+    public Collection<User> findFriends(Long userId) {
+        User user = getUser(userId);
         log.info("Найти друзей пользователя: {}", user.getName());
-        return friends;
+        return friendStorage.findFriends(userId);
     }
 
     public Collection<User> findAll() {
@@ -73,7 +60,11 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        return userStorage.getUser(id);
+        return userStorage.getUser(id)
+                .orElseThrow(() -> {
+                    log.info("Пользователь с id {} не найден", id);
+                    return new UserNotFoundException(String.format("Пользователя с id " + id + " не существует."));
+                });
     }
 
     private void userValidation(User user) {

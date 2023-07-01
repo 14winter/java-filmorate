@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.List;
 
 @RestController
 @Slf4j
@@ -23,6 +22,7 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAll() {
+        log.info("Получен Get запрос на получение списка пользователей.");
         return userService.findAll();
     }
 
@@ -57,13 +57,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> findFriends(@PathVariable Long id) {
+    public Collection<User> findFriends(@PathVariable Long id) {
         log.info("Получен Get запрос к /users/{id}/friends: id{}", id);
         return userService.findFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> findCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+    public Collection<User> findCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
         log.info("Получен Get запрос к /users/{id}/friends/common/{otherId}: id{}, otherId{}", id, otherId);
         return userService.findCommonFriends(id, otherId);
     }

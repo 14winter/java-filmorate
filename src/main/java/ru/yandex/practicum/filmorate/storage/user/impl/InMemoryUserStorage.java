@@ -1,13 +1,15 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage.user.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -43,7 +45,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long id) {
+    public Optional<User> getUser(Long id) {
         if (id <= 0) {
             log.info("id {} должен быть больше ноля", id);
             throw new UserNotFoundException("id должен быть больше ноля");
@@ -53,7 +55,7 @@ public class InMemoryUserStorage implements UserStorage {
             log.info("Пользователь с id {} не найден", id);
             throw new UserNotFoundException("Пользователя с id " + id + " не существует.");
         }
-        return user;
+        return Optional.of(user);
     }
 
     private Long generateId() {
