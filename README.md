@@ -1,2 +1,2 @@
 ## Это репозиторий проекта "Filmorate"
-![Схема](\src\main\resources\image.jpg)
+![Схема](java-filmorate/src/main/resources/image.jpg)
